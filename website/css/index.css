@@ -1,0 +1,342 @@
+/*************************************************************************
+ *
+ * TOP COUNSELLING CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2014 TOP COUNSELLING
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Top Counselling and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Top Counselling and its
+ * suppliers and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Top Counselling.
+ **************************************************************************/
+
+html {
+    color: #222222;
+    margin: 0 1rem;
+    font-family: "Times New Roman", Times, serif
+    overflow-x: hidden;
+}
+
+html body {
+    background-image: url("../img/frame_full.png");
+    background-position: left/;
+    background-repeat: repeat-y;
+    background-size: 15%;
+    -webkit-appearance: none;
+}
+
+html .centered-content {
+    width: 80%;
+    margin: 0 1rem 0 auto;
+}
+
+/***************************************************************************************
+                HEADER
+ ***************************************************************************************/
+.header {
+    width: 100%;
+    overflow: hidden;
+}
+
+.header .header-line {
+    text-align: center;
+    margin: 1rem auto 0 auto;
+    clear: both;
+}
+
+.header .logo {
+    margin: 0 2.35rem 1rem;
+}
+
+.header .logo img {
+    height: 120px;
+    margin: 0.25rem 1rem 1rem 0;
+}
+
+.header .title {
+    display: inline-block;
+    max-width: 23rem;
+    text-align: center;
+}
+
+.header .title .name {
+    font-size: 1.8rem;
+    display: inline;
+}
+
+.header .title .credentials {
+    font-size: 0.7rem;
+}
+
+.header .title .email {
+    font-size: 1.1rem;
+}
+
+.header .buttons {
+    display: block;
+    width: 100%;
+    margin-top: .25rem;
+}
+
+.header .buttons button {
+    width: 9.8rem;
+    position: relative;
+    /* margin: 0 2.35rem;*/
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+    display: inline-block;
+}
+
+.header .buttons .address {
+    position: relative;
+    height: 100%;
+}
+
+.header .buttons .address div {
+    -webkit-padding-before: 0.25rem;
+    -webkit-padding-after: 0.25rem;
+    -webkit-padding-start: 0.25rem;
+}
+
+.header .buttons .address div {
+    clear: both;
+    float: left;
+    text-align: center;
+    margin: 0.25rem 0;
+}
+
+.header .buttons .address img {
+    margin-top: 1.1rem;
+}
+
+.header .phone {
+    padding: 0.25rem;
+}
+.header .booking {
+    height: 27px;
+    margin-top: 0.7rem;
+}
+
+/***************************************************************************************
+                MENU
+ ***************************************************************************************/
+.menu {
+    clear: both;
+}
+
+.menu .booking {
+    padding: 0.25rem;
+    margin: 0 1rem;
+}
+
+.menu .list {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style-type: none;
+    text-align: center;
+}
+
+.menu .list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.menu .list ul li {
+    display: inline;
+}
+
+.menu .list ul li a {
+    text-decoration: none;
+    padding: .2em 1em;
+    color: #fff;
+    background-color: #036;
+    word-wrap: normal;
+    white-space: nowrap;
+    line-height: 2rem;
+}
+.menu .list ul li a.selected {
+    background-color: #012;
+}
+
+.menu .list ul li a:hover {
+    color: #fff;
+    background-color: #369;
+}
+
+/***************************************************************************************
+                CONTENT
+ ***************************************************************************************/
+.content {
+    margin-top: 1rem;
+    width: 100%;
+    overflow-x: hidden;
+    clear: both;
+}
+
+.content span:first-child {
+    display: block;
+    height: auto;
+}
+
+.content span {
+    width: 60%;
+    position: absolute;
+    display: none;
+    height: 0;
+    padding: 1rem;
+    background-color: #FDFDFD;
+    color: rgb(104, 104, 104);
+    border: 2px black solid;
+    border-radius: 25px;
+}
+/*
+
+.content iframe {
+    border: 2px white solid;
+    border-radius: 25px;
+}
+*/
+
+.content span h3:first-child {
+    margin-top: 0;
+}
+/*
+
+.content .bookme {
+    min-width: 375px;
+    padding: 0;
+}
+
+.content .bookme iframe,
+.content .map iframe {
+    width: 98%;
+    min-height: 50rem;
+}
+*/
+
+/***************************************************************************************
+/* Different Screen Sizes */
+
+/***************************************************************************************/
+@media (min-width : 466px) {
+
+    .header .header-line {
+        margin-top: 2rem;
+    }
+
+    .header .logo {
+        display: inline;
+        margin: 0;
+    }
+    .header .logo img {
+        height: 80px;
+        float: left;
+    }
+
+    .header .title {
+        display: inline-block;
+        min-width: 11rem;
+        margin-right: 0;
+        margin-top: 1rem;
+    }
+
+    .header .title .name {
+        font-size: 1.5rem;
+    }
+
+    .header .title .credentials {
+        font-size: 1.0rem;
+    }
+    .header .title .email {
+        font-size: 1.2rem;
+    }
+
+    .header .buttons {
+        float: right;
+        width: 100%;
+    }
+
+    .header .buttons > div {
+        width: auto;
+        margin-left: 0;
+    }
+
+    .header .phone {
+        margin-bottom: 1.2rem !important;
+    }
+
+    .content span {
+        width: 70%;
+    }
+}
+
+/***************************************************************************************/
+@media (min-width : 680px) {
+
+    .header .title {
+        width: 14rem;
+        display: inline-block;
+    }
+
+    .header .buttons {
+        width: 9.8rem;
+    }
+
+    .header .buttons button {
+        width: 9.8rem;
+        display: block;
+        position: relative;
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .header .buttons .address {
+        position: inherit;
+    }
+
+    .header .buttons > div {
+        width: auto;
+        margin-left: 0;
+    }
+
+    .content span {
+        width: 72%;
+    }
+}
+
+/***************************************************************************************/
+@media (min-width : 781px) {
+
+    .header .header-line {
+        margin-top: 1rem;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .header .logo,
+    .header .logo img{
+        height: 120px;
+        width: 130px;
+    }
+
+    .header .title {
+        display: inline-block;
+        margin-top: 2rem;
+    }
+
+    .header .title .name {
+        font-size: 1.9rem;
+    }
+
+    .header .title .credentials {
+        font-size: 1.2rem;
+    }
+}
