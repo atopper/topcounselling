@@ -16,24 +16,30 @@
  * from Top Counselling.
  **************************************************************************/
 
+@font-face {
+    font-family: 'OpenSans';
+    src: url('fonts/OpenSans-Regular.ttf') format('truetype');
+}
+
 html {
     color: #222222;
     margin: 0 1rem;
-    font-family: "Times New Roman", Times, serif
     overflow-x: hidden;
 }
 
 html body {
     background-image: url("../img/frame_full.png");
-    background-position: left/;
+    background-position: left;
     background-repeat: repeat-y;
     background-size: 15%;
     -webkit-appearance: none;
+    font-family: "OpenSans", Times, serif;
 }
 
 html .centered-content {
     width: 80%;
     margin: 0 1rem 0 auto;
+    font-size: 0.9rem;
 }
 
 /***************************************************************************************
@@ -46,7 +52,7 @@ html .centered-content {
 
 .header .header-line {
     text-align: center;
-    margin: 1rem auto 0 auto;
+    margin: 0.5rem auto 0 auto;
     clear: both;
 }
 
@@ -61,58 +67,29 @@ html .centered-content {
 
 .header .title {
     display: inline-block;
-    max-width: 23rem;
+    max-width: 14rem;
     text-align: center;
 }
 
 .header .title .name {
+    font-family: 'OpenSans';
     font-size: 1.8rem;
     display: inline;
-}
-
-.header .title .credentials {
-    font-size: 0.7rem;
 }
 
 .header .title .email {
     font-size: 1.1rem;
 }
 
-.header .buttons {
+.header .right {
     display: block;
-    width: 100%;
     margin-top: .25rem;
 }
 
-.header .buttons button {
-    width: 9.8rem;
-    position: relative;
-    /* margin: 0 2.35rem;*/
-    margin-top: 0.5rem !important;
-    margin-bottom: 0.5rem !important;
-    display: inline-block;
-}
-
-.header .buttons .address {
-    position: relative;
-    height: 100%;
-}
-
-.header .buttons .address div {
-    -webkit-padding-before: 0.25rem;
-    -webkit-padding-after: 0.25rem;
-    -webkit-padding-start: 0.25rem;
-}
-
-.header .buttons .address div {
-    clear: both;
-    float: left;
-    text-align: center;
-    margin: 0.25rem 0;
-}
-
-.header .buttons .address img {
-    margin-top: 1.1rem;
+.header .right img {
+    border-radius: 15px 50px;
+    -moz-border-radius: 15px 50px;
+    -webkit-border-radius: 15px 50px;
 }
 
 .header .phone {
@@ -181,12 +158,36 @@ html .centered-content {
     clear: both;
 }
 
-.content span:first-child {
+.content .vertical-top {
+    vertical-align: top;
+}
+
+.content .display-inline-block {
+    display: inline-block;
+}
+
+.content .text-italic {
+    font-style: italic;
+}
+
+.content .float-right {
+    float: right;
+}
+
+.content > span:first-child {
     display: block;
     height: auto;
 }
 
-.content span {
+.content .only-mobile {
+    display: none;
+}
+
+.content .not-mobile {
+    display: block;
+}
+
+.content > span {
     width: 60%;
     position: absolute;
     display: none;
@@ -197,39 +198,40 @@ html .centered-content {
     border: 2px black solid;
     border-radius: 25px;
 }
-/*
 
-.content iframe {
-    border: 2px white solid;
-    border-radius: 25px;
-}
-*/
-
-.content span h3:first-child {
+.content > span h3:first-child {
     margin-top: 0;
 }
-/*
 
-.content .bookme {
-    min-width: 375px;
-    padding: 0;
+.content .location a img {
+    margin-top: 1.3rem;
 }
 
-.content .bookme iframe,
-.content .map iframe {
-    width: 98%;
-    min-height: 50rem;
+.content a {
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
-*/
 
 /***************************************************************************************
 /* Different Screen Sizes */
+
+@media only screen and (min-device-width : 480px) and (orientation : portrait) {
+    .content .only-mobile {
+        display: block;
+    }
+
+    .content .not-mobile {
+        display: none;
+    }
+}
 
 /***************************************************************************************/
 @media (min-width : 466px) {
 
     .header .header-line {
-        margin-top: 2rem;
+        margin-top: 0.5rem;
     }
 
     .header .logo {
@@ -243,7 +245,7 @@ html .centered-content {
 
     .header .title {
         display: inline-block;
-        min-width: 11rem;
+        /*min-width: 11rem;*/
         margin-right: 0;
         margin-top: 1rem;
     }
@@ -252,28 +254,19 @@ html .centered-content {
         font-size: 1.5rem;
     }
 
-    .header .title .credentials {
-        font-size: 1.0rem;
-    }
     .header .title .email {
         font-size: 1.2rem;
     }
 
-    .header .buttons {
+    .header .right {
         float: right;
-        width: 100%;
-    }
-
-    .header .buttons > div {
-        width: auto;
-        margin-left: 0;
     }
 
     .header .phone {
         margin-bottom: 1.2rem !important;
     }
 
-    .content span {
+    .content > span {
         width: 70%;
     }
 }
@@ -282,32 +275,15 @@ html .centered-content {
 @media (min-width : 680px) {
 
     .header .title {
-        width: 14rem;
+        /*width: 14rem;*/
         display: inline-block;
     }
 
-    .header .buttons {
-        width: 9.8rem;
-    }
+/*    .header .right {
+        width: 8.8rem;
+    }*/
 
-    .header .buttons button {
-        width: 9.8rem;
-        display: block;
-        position: relative;
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-
-    .header .buttons .address {
-        position: inherit;
-    }
-
-    .header .buttons > div {
-        width: auto;
-        margin-left: 0;
-    }
-
-    .content span {
+    .content > span {
         width: 72%;
     }
 }
@@ -316,7 +292,7 @@ html .centered-content {
 @media (min-width : 781px) {
 
     .header .header-line {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         margin-left: 0;
         margin-right: 0;
     }
@@ -334,9 +310,5 @@ html .centered-content {
 
     .header .title .name {
         font-size: 1.9rem;
-    }
-
-    .header .title .credentials {
-        font-size: 1.2rem;
     }
 }
