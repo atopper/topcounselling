@@ -22,29 +22,17 @@
     var menuLi = menuNS + ' .list ul li';
     var menuA = menuLi + ' a';
     var contentRel = '.content';
-/*
-    var bookingButton = '.booking';
-    var mapButton = '.address';
- */
 
-    $( document ).ready(function() {
+    var contentHeights = {};
+
+    $( window ).load(function() {
         $(menuA).off('click' + menuNS).on('click' + menuNS, function(event) {
             handleContentChange(event);
         });
-    });
 
-/*    $( document ).ready(function() {
-        $(bookingButton).off('click' + bookingButton).on('click' + bookingButton, function(event) {
-            handleContentChange(event);
-        });
+        contentHeights['aboutme'] = $('.content .aboutme').height();
+        $('.footer').css('top', 100 + $('.header').height() + $('.menu').height() + contentHeights['aboutme']).show();;
     });
-
-    $( document ).ready(function() {
-        $(mapButton).off('click' + mapButton).on('click' + mapButton, function(event) {
-            handleContentChange(event);
-        });
-    });
- */
 
     function handleContentChange(event) {
         event.preventDefault();
@@ -76,9 +64,15 @@
         var autoHeight = newContent.css('height', 'auto').height();
 
         // Hide old and show new.
-        oldContentWell.css('z-index',1).animate({height: '0px'}, 250).hide(250);
-        newContent.css('z-index',10).height(curHeight).show().animate({height: autoHeight}, 250);
-    }
+        oldContentWell.css('z-index',1).animate({opacity: 0}, 250);
+        newContent.css('z-index',10).animate({opacity: 1}, 250);
+
+        if (typeof contentHeights[newContentClass] === 'undefined') {
+            contentHeights[newContentClass] = 100 + $('.header').height() + $('.menu').height() + newContent.height();
+        }
+
+        $('.footer').css('top', contentHeights[newContentClass]);
+}
 
 })(window);
 

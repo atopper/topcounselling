@@ -152,9 +152,9 @@ html .centered-content {
                 CONTENT
  ***************************************************************************************/
 .content {
-    margin-top: 1rem;
+    margin: 1rem 0;
     width: 100%;
-    overflow-x: hidden;
+    overflow: auto;
     clear: both;
 }
 
@@ -176,6 +176,7 @@ html .centered-content {
 
 .content > span:first-child {
     display: block;
+    opacity: 1;
     height: auto;
 }
 
@@ -189,9 +190,9 @@ html .centered-content {
 
 .content > span {
     width: 60%;
+    margin-bottom: 10rem;
     position: absolute;
-    display: none;
-    height: 0;
+    opacity: 0;
     padding: 1rem;
     background-color: #FDFDFD;
     color: rgb(104, 104, 104);
@@ -205,6 +206,7 @@ html .centered-content {
 
 .content .location a img {
     margin-top: 1.3rem;
+    padding-right: 1rem;
 }
 
 .content a {
@@ -214,10 +216,22 @@ html .centered-content {
     word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
+.footer {
+    position: absolute;
+    display: none;
+    max-width: 206px;
+    text-align: center;
+}
+
+.footer > div {
+    float: right;
+    margin: 0.2rem 0.5rem;
+}
+
 /***************************************************************************************
 /* Different Screen Sizes */
 
-@media only screen and (min-device-width : 480px) and (orientation : portrait) {
+@media only screen and (max-width : 480px) and (orientation : portrait) {
     .content .only-mobile {
         display: block;
     }
@@ -268,6 +282,10 @@ html .centered-content {
 
     .content > span {
         width: 70%;
+    }
+
+    .footer {
+        max-width: 100%;
     }
 }
 
