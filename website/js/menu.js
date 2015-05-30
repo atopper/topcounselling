@@ -30,8 +30,8 @@
             handleContentChange(event);
         });
 
-        contentHeights['aboutme'] = $('.content .aboutme').height();
-        $('.footer').css('top', 100 + $('.header').height() + $('.menu').height() + contentHeights['aboutme']).show();;
+        contentHeights['aboutme'] = 100 + $('.header').height() + $('.menu').height() + $('.content .aboutme').height();
+        $('.footer').css('top', contentHeights['aboutme']).show();
     });
 
     function handleContentChange(event) {
