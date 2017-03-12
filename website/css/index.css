@@ -228,6 +228,12 @@ html .centered-content {
     margin: 0.2rem 0.5rem;
 }
 
+.supervisor {
+    margin-left: 1rem;
+    font-style: italic;
+    font-size: 13px;
+}
+
 /***************************************************************************************
 /* Different Screen Sizes */
 
