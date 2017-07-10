@@ -1,0 +1,137 @@
+/*************************************************************************
+ *
+ * TOP COUNSELLING CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2017 TOP COUNSELLING
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Top Counselling and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Top Counselling and its
+ * suppliers and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Top Counselling.
+ **************************************************************************/
+
+body .processingInputs {
+    padding: 0.3rem;
+    background-color: #FAFAFA;
+}
+
+body .processingInputs textarea {
+    width: 49%;
+    height: 12rem;
+    resize: vertical;
+}
+
+body .processingInputs button {
+    position: relative;
+    left: 45%;
+}
+
+body #clientToolbar {
+    padding: 0.3rem;
+    background-color: #DFE1E0;
+    border: 1px black solid;
+    margin-bottom: 1rem;
+}
+
+body .content {
+    display: none;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+body .sectionTitle {
+    font-weight: bold;
+    font-size: x-large;
+    background-color: black;
+    color: white;
+}
+body .content .sectionTitle.sessionTitle {
+    margin-top: 12rem;
+}
+
+body #clientInformation {
+    width: 101%;
+}
+
+body #clientInformation .column {
+    text-align: left;
+    width: 33%;
+    float: left;
+    background-color: white;
+    color: black;
+}
+
+body #clientInformation label {
+    display: block;
+}
+body #clientInformation input {
+    width: 96%;
+    margin-bottom: 0.3rem;
+}
+
+body .invalidData {
+    background-color: rgba(255, 0, 0, 0.03);
+}
+
+body #clientToolbar {
+    text-align: center;
+}
+
+body #clientToolbar .left {
+    float: left;
+}
+body #clientToolbar .right {
+    float: right;
+    margin-top: -1.2rem;
+}
+
+body #sessionInformation table {
+    width: 100%;
+    text-align: left;
+}
+
+.filtersContainer {
+    width: 50%;
+    min-height: 10rem;
+    position: absolute;
+    top: -40rem;
+    left: 25%;
+    background-color: rgb(245,245,245);
+    color: black;
+    text-align: center;
+    border: black 2px solid;
+}
+
+.filtersContainer .sectionTitle {
+    margin-bottom: 1rem;
+    background-color: grey;
+}
+
+.filterApplier {
+    right: 2rem;
+    bottom: 1rem;
+    position: absolute;
+}
+
+.filters {
+    width: 100%;
+    text-align: left;
+}
+
+.filters > div {
+    width: 45%;
+    margin: 0 1rem;
+}
+
+.filters .filtersColumn1 {
+    float: left;
+}
+.filters .filtersColumn1 {
+    float: right;
+}
