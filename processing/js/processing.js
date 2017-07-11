@@ -25,12 +25,14 @@
     var clientKey = 5;
     var sessionKey = 0;
     var skipFirstClientRow = true;
-    var masterColumns = ['dateOfReferral','number','name','employer','phone','reason','calls','firstAptDate',
-        'dateSentExtReq','dateExtReqApproved','approved','datesSeen'];
-    var masterKey = 2;
-    var skipFirstMasterRow = false;
+    var masterColumns = ['dateOfReferral','number','name','employer','phone','calls','firstAptDate',
+        'dateSentExtReq','dateExtReqApproved','approved','datesSeen','owlId','reason'];
+    var masterKey = 11;
+    var skipFirstMasterRow = true;
 
     var currentClientIndex = 0;
+
+    var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
     // Filters
     var filters = {
@@ -38,6 +40,9 @@
         extensionRequired: false
     }
 
+    /**********************************************************************/
+    // HANDLE USER CLICKS
+    /**********************************************************************/
     $(document).off('click.processsing')
         .on('click.processsing', '.processingInputsButton', function(event) {
             clientData = {count: 0};
@@ -60,9 +65,7 @@
     $(document).off('click.next')
         .on('click.next', '.nextClient', function(event) {
             if (currentClientIndex + 1 < clientData.count) {
-                if (!filters.extensionRequired || !filters.irritating) {
-                    currentClientIndex++;
-                }
+                currentClientIndex++;
                 populateFields(1);
             }
         });
@@ -70,9 +73,7 @@
     $(document).off('click.previous')
         .on('click.previous', '.previousClient', function(event) {
             if (currentClientIndex > 0) {
-                if (!filters.extensionRequired || !filters.irritating) {
-                    currentClientIndex--;
-                }
+                currentClientIndex--;
                 populateFields(-1);
             }
         });
@@ -101,6 +102,9 @@
             populateFields(1);
         });
 
+    /**********************************************************************/
+    // Start working
+    /**********************************************************************/
     function inputClientData() {
         var clientText = $('#calendarImport').val();
         if (clientText.length === 0) {
@@ -167,7 +171,11 @@
             var newClient = [];
             var i;
             for (i = 0; i < values.length; i++) {
-                newClient[masterColumns[i]] = $.trim(values[i]).replace(/\"/g, "");
+                var value = $.trim(values[i]).replace(/\"/g, "");
+                newClient[masterColumns[i]] = value;
+                if (value && value.length > 0 && masterColumns[i] === 'datesSeen') {
+                    newClient['datesSeenCount'] = (value.match(/,/g) || []).length + 1;
+                }
             }
             var key = values[masterKey];
             if (clientData[key]) {
@@ -219,6 +227,7 @@
     }
 
     function populateFields(increment, force) {
+        $('#clientInformation .datesSeenCount').text('0');
         if ((filters.extensionRequired || filters.irritating) && !force) {
             showNext(currentClientIndex, increment);
         } else {
@@ -226,11 +235,17 @@
             content.fadeTo(100, 0.5, function() {
                 var nextClientData = clientData[Object.keys(clientData)[currentClientIndex]];
                 var i;
-                $('.clientId').text('Client Id: ' + nextClientData['clientId'] + ' (' + (currentClientIndex + 1) + ' of ' + (Object.keys(clientData).length - 1) + ')');
+                $('.clientId').text('Client (OWL) Id: ' + nextClientData['clientId']);
+                $('.mOfn').text((currentClientIndex + 1) + ' of ' + (Object.keys(clientData).length - 1));
 
                 for (i = 0; i < masterColumns.length; i++) {
                     var fld = $('#' + masterColumns[i]);
-                    fld.val(nextClientData[masterColumns[i]]);
+                    var val = nextClientData[masterColumns[i]];
+                    var date = new Date(val);
+                    if (!!date && date.getFullYear() > 2013 && (val.indexOf('-') > 0 || val.indexOf('/') > 0)) {
+                        val = getDateString(date) + ' (' + val + ')';
+                    }
+                    fld.val(val);
                     if (!nextClientData[masterColumns[i]] || nextClientData[masterColumns[i]].length === 0) {
                         fld.addClass('invalidData');
                     } else {
@@ -243,6 +258,7 @@
                     addRow(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
                         nextClientData['dateExtReqApproved'], nextClientData['number']);
                 });
+                $('#clientInformation .datesSeenCount').text(nextClientData['datesSeenCount']);
 
                 content.fadeTo(100, 1);
             })
@@ -258,13 +274,13 @@
     function addRow(table, sessionData, employer, extReq, extApproved, number) {
         var row = $('<tr>');
         table.append(row);
-        addCell(row, sessionData['startDate']);
+        addCell(row, getDateString(new Date(sessionData['startDate'])));
         addCell(row, employer);
         addCell(row, number);
         addCell(row, (sessionData['attendance'] === 'No Show' ? '<b>√</b>' : ''));
         addCell(row, sessionData['duration']);
-        addCell(row, extReq);
-        addCell(row, extApproved);
+        addCell(row, extApproved/*extReq*/);
+        addCell(row, '');
         addCell(row, sessionData['fee'], false);
         addCell(row, sessionData['charged'], false);
         addCell(row, sessionData['paid'], false);
@@ -281,11 +297,6 @@
     }
 
     function showNext(index, direction) {
-        if (index + direction < 0 || index + direction >= clientData.count) {
-            alert('No matching clients were found.');
-            return;
-        }
-        index += direction;
         var nextClient = clientData[Object.keys(clientData)[index]];
         var foundHit = (!filters.irritating || isIrritating(nextClient));
         foundHit = foundHit && (!filters.extensionRequired || isRequireExtension(nextClient));
@@ -294,7 +305,11 @@
             currentClientIndex = index;
             populateFields(nextClient, true);
         } else {
-            showNext(index, direction);
+            if (index + direction < 0 || index + direction >= clientData.count) {
+                alert('No matching clients were found.');
+                return;
+            }
+            showNext(index + direction, direction);
         }
     }
 
@@ -314,6 +329,10 @@
         })
 
         return irritating;
+    }
+
+    function getDateString(date) {
+        return MONTHS[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
     }
 
 })(window);
