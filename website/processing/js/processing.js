@@ -19,7 +19,7 @@
 
 (function(window, undefined) {
 
-    var clientData = {count: 0};
+    var clientData = [];
     var clientColumns = ['id','type','startDate','serviceName','clientCode','clientId','therapistName','duration',
         'attendance','fee','charged','paid','invoiceId','paymentMethod','comments'];
     var clientKey = 5;
@@ -37,7 +37,8 @@
     // Filters
     var filters = {
         irritating: false,
-        extensionRequired: false
+        extensionRequired: false,
+        hidePrivateClients: false
     }
 
     /**********************************************************************/
@@ -45,12 +46,13 @@
     /**********************************************************************/
     $(document).off('click.processsing')
         .on('click.processsing', '.processingInputsButton', function(event) {
-            clientData = {count: 0};
+            clientData = [];
             $('.processingInputs textarea').hide();
 
             currentClientIndex = 0;
             inputClientData();
             inputMasterKey();
+            clientData.sort(sortByNumber);
             populateFields(1);
         });
 
@@ -64,7 +66,7 @@
 
     $(document).off('click.next')
         .on('click.next', '.nextClient', function(event) {
-            if (currentClientIndex + 1 < clientData.count) {
+            if (currentClientIndex + 1 < clientData.length) {
                 currentClientIndex++;
                 populateFields(1);
             }
@@ -96,6 +98,7 @@
         .on('click.filterApplier', '.filterApplier', function(event) {
             filters.irritating = $('.filterIrritating:checked').length > 0;
             filters.extensionRequired = $('.filterExtension:checked').length > 0;
+            filters.hidePrivateClients = $('.filterHidePrivate:checked').length > 0;
             $('.filtersContainer').animate({top: '-40rem'}, 500);
 
             currentClientIndex = 0;
@@ -135,13 +138,14 @@
             }
             var key = values[clientKey];
             var sessionKeyValue = values[sessionKey];
-            if (!clientData[key]) {
-                clientData.count++;
-                clientData[key] = {sessions: {}, sessionCount: 0};
+            var newClient = getClientById(key);
+            if (newClient === null) {
+                newClient = {sessions: {}, sessionCount: 0};
+                clientData.push(newClient);
+                newClient['clientId'] = newSession['clientId'];
             }
-            clientData[key].sessionCount++;
-            clientData[key].sessions[sessionKeyValue] = newSession;
-            clientData[key]['clientId'] = newSession['clientId'];
+            newClient.sessions[sessionKeyValue] = newSession;
+            newClient.sessionCount++;
         });
     }
 
@@ -178,12 +182,25 @@
                 }
             }
             var key = values[masterKey];
-            if (clientData[key]) {
-                clientData[key] = $.extend(clientData[key], clientData[key], newClient);
+            var exisingClient = getClientById(key);
+            if (exisingClient !== null) {
+                newClient = $.extend(exisingClient, exisingClient, newClient);
             } else {
-                clientData[key] = newClient;
+                newClient['clientId'] = newClient['owlId'];
+                clientData.push(newClient);
             }
         });
+    }
+
+    function sortByNumber(a, b){
+        var aNum = a['number'] || 999999999999;
+        var bNum = b['number'] || 999999999999;
+        if (aNum === 999999999999 && bNum === 999999999999) {
+            aNum = a['clientId'];
+            bNum = b['clientId'];
+        }
+
+        return ((aNum < bNum) ? -1 : ((aNum > bNum) ? 1 : 0));
     }
 
     function commaDelimitedQuotes(theLine) {
@@ -228,15 +245,15 @@
 
     function populateFields(increment, force) {
         $('#clientInformation .datesSeenCount').text('0');
-        if ((filters.extensionRequired || filters.irritating) && !force) {
+        if ((filters.extensionRequired || filters.irritating || filters.hidePrivateClients) && !force) {
             showNext(currentClientIndex, increment);
         } else {
             var content = $('.content');
             content.fadeTo(100, 0.5, function() {
-                var nextClientData = clientData[Object.keys(clientData)[currentClientIndex]];
+                var nextClientData = clientData[currentClientIndex];
                 var i;
                 $('.clientId').text('Client (OWL) Id: ' + nextClientData['clientId']);
-                $('.mOfn').text((currentClientIndex + 1) + ' of ' + (Object.keys(clientData).length - 1));
+                $('.mOfn').text((currentClientIndex + 1) + ' of ' + clientData.length);
 
                 for (i = 0; i < masterColumns.length; i++) {
                     var fld = $('#' + masterColumns[i]);
@@ -254,10 +271,12 @@
                 }
                 var table = $('table');
                 clearTable(table);
-                $.each(nextClientData.sessions, function (index) {
-                    addRow(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
-                        nextClientData['dateExtReqApproved'], nextClientData['number']);
-                });
+                if (nextClientData.sessions) {
+                    $.each(nextClientData.sessions, function (index) {
+                        addRow(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
+                            nextClientData['dateExtReqApproved'], nextClientData['number']);
+                    });
+                }
                 $('#clientInformation .datesSeenCount').text(nextClientData['datesSeenCount']);
 
                 content.fadeTo(100, 1);
@@ -297,16 +316,17 @@
     }
 
     function showNext(index, direction) {
-        var nextClient = clientData[Object.keys(clientData)[index]];
+        var nextClient = clientData[index];
         var foundHit = (!filters.irritating || isIrritating(nextClient));
         foundHit = foundHit && (!filters.extensionRequired || isRequireExtension(nextClient));
+        foundHit = foundHit && (!filters.hidePrivateClients || isPrivateClient(nextClient));
 
         if (foundHit) {
             currentClientIndex = index;
             populateFields(nextClient, true);
         } else {
-            if (index + direction < 0 || index + direction >= clientData.count) {
-                alert('No matching clients were found.');
+            if (index + direction < 0 || index + direction >= clientData.length) {
+                alert('Mo more clients that match your filter choices were found.');
                 return;
             }
             showNext(index + direction, direction);
@@ -319,20 +339,37 @@
         (!theClient['approved'] || theClient['approved'].length === 0));
     }
 
+    function isPrivateClient(theClient) {
+        return (typeof theClient['number'] !== 'undefined');
+    }
+
     function isIrritating(theClient) {
         var irritating = false;
-        $.each(theClient.sessions, function(index) {
-            if (this['paid'] === '0.00' || this['attendance'] === 'No Show') {
-                irritating = true;
-                return;
-            }
-        })
+        if (theClient.sessions) {
+            $.each(theClient.sessions, function (index) {
+                if (this['paid'] === '0.00' || this['attendance'] === 'No Show') {
+                    irritating = true;
+                    return;
+                }
+            });
+        }
 
         return irritating;
     }
 
     function getDateString(date) {
         return MONTHS[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
+    }
+
+    function getClientById(id) {
+        var i;
+        for (i = 0; i < clientData.length; i++) {
+            if (clientData[i]['clientId'] === id) {
+                return clientData[i];
+            }
+        }
+
+        return null;
     }
 
 })(window);

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!--
+/*************************************************************************
+*
+* TOP COUNSELLING CONFIDENTIAL
+* ___________________
+*
+*  Copyright 2014 TOP COUNSELLING
+*  All Rights Reserved.
+*
+* NOTICE:  All information contained herein is, and remains
+* the property of Top Counselling and its suppliers,
+* if any.  The intellectual and technical concepts contained
+* herein are proprietary to Top Counselling and its
+* suppliers and are protected by trade secret or copyright law.
+* Dissemination of this information or reproduction of this material
+* is strictly forbidden unless prior written permission is obtained
+* from Top Counselling.
+**************************************************************************/
+-->
+<html lang="en" data-locale="en-CA" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="utf-8">
+  <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW, ARCHIVE" />
+  <title>Top Counselling - Sue Top</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noodp">
+  <meta name="keywords" content="TopCounselling,processing">
+  <meta name="description" content="Information massaging for Top Couselling">
+  <meta name="application-name" content="TopCounselling.com">
+  <meta name="msapplication-TileColor" content="FF0000">
+  <link rel="icon" type="image/ico" href="http://topcounselling.com/img/favicon.ico"/>
+
+  <script type="text/javascript" src="../libs/jquery-2.1.1.min.js" ></script>
+  <script type="text/javascript" src="js/processing.js" ></script>
+  <!--[if lte IE 8]><script type="text/javascript">window.location = "https://helpx.adobe.com/ca/support/upgrade-your-internet-explorer.html";</script><![endif]-->
+  <link rel="icon" href="http://topcounselling.com/img/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="http://topcounselling.com/img/favicon.ico" type="image/x-icon">
+  <link rel="canonical" href="http://topcouselling.com">
+  <link rel="stylesheet" href="css/processing.css">
+</head>
+<body>
+  <div class="processingInputs">
+      <textarea id="calendarImport" title="Copy and Paste calendar information here." placeholder="Copy and Paste calendar information here."></textarea>
+      <textarea id="masterKey" title="Copy and Paste Master Key information here." placeholder="Copy and Paste Master Key information here."></textarea>
+      <button class="processingInputsButton" title="Read in the data in the two text areas above and set the client list to populate the information below"
+              type="button">Process</button>
+      <button class="processingInputsReset"  title="Clear the data in the two text areas above and start over"
+              type="button">Reset</button>
+  </div>
+  <div class="content">
+      <div id="clientToolbar">
+          <div class="left">
+              <button class="filterActivator" title="Show conditions to filter the list" type="button">Filters</button>
+          </div>
+          <div class="center">
+              <span class="clientId">00</span>
+          </div>
+          <div class="right">
+              <button class="firstClient" title="Show the first client in the list" type="button"><< First</button>
+              <button class="previousClient" title="Show the previous client in the list" type="button">< Previous</button>
+              <span class="mOfn"></span>
+              <button class="nextClient" title="Show the next client in the list" type="button">Next ></button>
+          </div>
+      </div>
+      <div class="sectionTitle">Client Information</div>
+      <div id="clientInformation">
+          <div class="column column1">
+              <label for="dateOfReferral">Referral</label>
+              <input type="text" disabled id="dateOfReferral">
+              <label for="number">Number</label>
+              <input type="text" disabled id="number">
+              <label for="name">Name</label>
+              <input type="text" disabled id="name">
+              <label for="employer">Employer</label>
+              <input type="text" disabled id="employer">
+          </div>
+          <div class="column column2">
+              <label for="phone">Phone</label>
+              <input type="text" disabled id="phone">
+              <label for="reason">Reason</label>
+              <input type="text" disabled id="reason">
+              <label for="calls">Calls</label>
+              <input type="text" disabled id="calls">
+              <label for="firstAptDate">First Apt Date</label>
+              <input type="text" disabled id="firstAptDate">
+          </div>
+          <div class="column column3">
+              <label for="dateSentExtReq">Date Sent Ext Req</label>
+              <input type="text" disabled id="dateSentExtReq">
+              <label for="dateExtReqApproved">Date Ext Req Approved</label>
+              <input type="text" disabled id="dateExtReqApproved">
+              <label for="approved">Approved</label>
+              <input type="text" disabled id="approved">
+              <label for="datesSeen">Dates Seen (<span class="datesSeenCount">0</span>)</label>
+              <input type="text" disabled id="datesSeen">
+          </div>
+      </div>
+      <div class="sectionTitle sessionTitle">Session Information</div>
+      <div id="sessionInformation">
+          <table border="1">
+              <thead>
+                <tr>
+                    <th style="text-align:center">Date of Service</th>
+                    <th style="text-align:center">Organization #</th>
+                    <th style="text-align:center">Client #</th>
+                    <th style="text-align:center">No Show</th>
+                    <th style="text-align:center">Time (minutes)</th>
+                    <th colspan="2" style="text-align:center">Extension Approved</th>
+                    <th colspan="3" style="text-align:center">Amount ($)</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th style="text-align:center">Date</th>
+                    <th style="text-align:center">Initials</th>
+                    <th style="text-align:center">Fee</th>
+                    <th style="text-align:center">Charged</th>
+                    <th style="text-align:center">Paid</th>
+                </tr>
+              </thead>
+          </table>
+      </div>
+    </div>
+    <div class="filtersContainer">
+      <div class="sectionTitle">Filters</div>
+      <div class="filters">
+          <div class="filtersColumn1">
+            <input class="filterIrritating" title="Only show clients that have missed an appointment or who haven't paid" type="checkbox">Irritating</input></br>
+            <input class="filterHidePrivate" title="Only show clients that has master information" type="checkbox">Hide Private Clients</input></br>
+          </div>
+          <div class="filtersColumn2">
+            <input class="filterExtension" title="Only show clients that probably require an extension." type="checkbox">Requires Extension</input>
+          </div>
+      </div>
+
+      <button class="filterApplier" title="Apply the set filters" type="button">Apply</button>
+    </div>
+</body>
+</html>
