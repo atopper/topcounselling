@@ -21,7 +21,7 @@
 
     var clientData = [];
     var clientColumns = ['id','type','startDate','serviceName','clientCode','clientId','therapistName','duration',
-        'attendance','fee','charged','paid','invoiceId','paymentMethod','comments'];
+        'attendance','fee','charged','taxChared', 'paid', 'taxPaid', 'invoiceId','paymentMethod','comments'];
     var clientKey = 5;
     var sessionKey = 0;
     var skipFirstClientRow = true;
@@ -46,6 +46,8 @@
     /**********************************************************************/
     $(document).off('click.processsing')
         .on('click.processsing', '.processingInputsButton', function(event) {
+            $('#masterKey').css('border-color', '');
+            $('#calendarImport').css('border-color', '');
             clientData = [];
             $('.processingInputs textarea').hide();
 
@@ -111,10 +113,15 @@
     function inputClientData() {
         var clientText = $('#calendarImport').val();
         if (clientText.length === 0) {
+            $('#calendarImport').css('border-color', 'red');
             return;
         }
         var firstRow = true;
         var data = clientText.split('\n');
+        if (data.length < 2) {
+            $('#calendarImport').css('border-color', 'red');
+            return;
+        }
         $.each(data, function() {
             if (firstRow) {
                 firstRow = false;
@@ -129,6 +136,7 @@
             if (values.length !== clientColumns.length) {
                 console.log('Client ' + values[0] + ' does not seem to have enough columns.  Expected ' + clientColumns.length + ' but got ' + values.length + '. Skipping it.');
                 console.log(JSON.stringify(this));
+                $('#calendarImport').css('border-color', 'red');
                 return;
             }
             var newSession = [];
@@ -152,10 +160,15 @@
     function inputMasterKey() {
         var masterText = $('#masterKey').val();
         if (masterText.length === 0) {
+            $('#masterKey').css('border-color', 'red');
             return;
         }
         var firstRow = true;
         var data = masterText.split('\n');
+        if (data.length < 2) {
+            $('#masterKey').css('border-color', 'red');
+            return;
+        }
         $.each(data, function() {
             if (firstRow) {
                 firstRow = false;
@@ -165,11 +178,13 @@
             }
             var values = commaDelimitedQuotes(this);
             if (values.length === 1) {
+                $('#masterKey').css('border-color', 'red');
                 return;
             }
             if (values.length !== masterColumns.length) {
                 console.log('Master ' + values[0] + ' does not seem to have enough columns.  Expected ' + masterColumns.length + ' but got ' + values.length + '. Skipping it.');
                 console.log(JSON.stringify(this));
+                $('#masterKey').css('border-color', 'red');
                 return;
             }
             var newClient = [];
@@ -247,7 +262,7 @@
         $('#clientInformation .datesSeenCount').text('0');
         if ((filters.extensionRequired || filters.irritating || filters.hidePrivateClients) && !force) {
             showNext(currentClientIndex, increment);
-        } else {
+        } else if (clientData.length > 0) {
             var content = $('.content');
             content.fadeTo(100, 0.5, function() {
                 var nextClientData = clientData[currentClientIndex];
