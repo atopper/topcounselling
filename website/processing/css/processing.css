@@ -52,7 +52,7 @@ body .sectionTitle {
     color: white;
 }
 body .content .sectionTitle.sessionTitle {
-    margin-top: 12rem;
+    margin-top: 14rem;
 }
 
 body #clientInformation {
@@ -93,6 +93,15 @@ body #clientToolbar .right {
 
 body #sessionInformation table {
     width: 100%;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+body #sessionInformation table tr.shortSession {
+    display: none;
+}
+
+body #sessionInformation {
     text-align: left;
 }
 

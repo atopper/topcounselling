@@ -26,7 +26,7 @@
     var sessionKey = 0;
     var skipFirstClientRow = true;
     var masterColumns = ['dateOfReferral','number','name','employer','phone','calls','firstAptDate',
-        'dateSentExtReq','dateExtReqApproved','approved','datesSeen','owlId','reason'];
+        'dateSentExtReq','dateExtReqApproved','approved','datesSeen','owlId','reason','initials'];
     var masterKey = 11;
     var skipFirstMasterRow = true;
 
@@ -93,6 +93,15 @@
             var filtersContainer = $('.filtersContainer');
             if (filtersContainer.position().top < 0) {
                 filtersContainer.animate({top: '3rem'}, 500);
+            }
+        });
+
+    $(document).off('click.hideShortSessions')
+        .on('click.hideShortSessions', '.hideShortSessions', function(event) {
+            if ($('.hideShortSessions:checked').length > 0) {
+                $('.shortSession').hide();
+            } else {
+                $('.shortSession').show();
             }
         });
 
@@ -178,7 +187,6 @@
             }
             var values = commaDelimitedQuotes(this);
             if (values.length === 1) {
-                $('#masterKey').css('border-color', 'red');
                 return;
             }
             if (values.length !== masterColumns.length) {
@@ -291,6 +299,9 @@
                         addRow(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
                             nextClientData['dateExtReqApproved'], nextClientData['number']);
                     });
+                    if ($('.hideShortSessions:checked').length === 0) {
+                        $('.shortSession').show();
+                    }
                 }
                 $('#clientInformation .datesSeenCount').text(nextClientData['datesSeenCount']);
 
@@ -306,14 +317,14 @@
     }
 
     function addRow(table, sessionData, employer, extReq, extApproved, number) {
-        var row = $('<tr>');
+        var row = $('<tr class="' + (sessionData['duration'] < 49 ? 'shortSession' : '') + '">');
         table.append(row);
         addCell(row, getDateString(new Date(sessionData['startDate'])));
         addCell(row, employer);
         addCell(row, number);
         addCell(row, (sessionData['attendance'] === 'No Show' ? '<b>√</b>' : ''));
         addCell(row, sessionData['duration']);
-        addCell(row, extApproved/*extReq*/);
+        addCell(row, extApproved);
         addCell(row, '');
         addCell(row, sessionData['fee'], false);
         addCell(row, sessionData['charged'], false);
