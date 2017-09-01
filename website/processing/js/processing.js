@@ -365,7 +365,7 @@
         addImportField(sessionData['duration']);
 
         addCell(row, extApproved);
-        addImportField(getDateString(new Date(extApproved), true));
+        addImportField((!extApproved || extApproved.length === 0 ? '' : getDateString(new Date(extApproved), true)));
         addImportField(initials);
 
         addCell(row, '');
@@ -462,7 +462,15 @@
     }
 
     function finalizeImportField() {
-       addImportField('PST	GST	884762642');
+        addImportField('PST	GST	884762642');
+
+        var imports = $('#importData');
+        var currentValue = imports.val();
+        if (currentValue.indexOf('NaN') > 0 || currentValue.indexOf('undefined') > 0) {
+            imports.css({'border-color':'red', 'background-color': '#fff0f0'});
+        } else {
+            imports.css({'border-color':'black', 'background-color': '#ffffff'});
+        }
     }
 
     function addImportField(value) {
