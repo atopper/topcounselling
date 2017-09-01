@@ -91,6 +91,10 @@ body #clientToolbar .right {
     margin-top: -1.2rem;
 }
 
+body #sessionInformation {
+    margin-bottom: 1rem;
+}
+
 body #sessionInformation table {
     width: 100%;
     text-align: left;
@@ -142,5 +146,20 @@ body #sessionInformation {
     float: left;
 }
 .filters .filtersColumn2 {
+    float: right;
+}
+
+.importData {
+    border: 1px solid black;
+    padding: 1rem 1rem 2rem 1rem;
+    margin-top: 1rem;
+}
+
+.importData #importData {
+    width: 99.7%;
+    height: 3rem;
+    resize: vertical;
+}
+.importData .saveImportData {
     float: right;
 }

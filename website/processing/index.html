@@ -128,10 +128,15 @@
                 </tr>
               </thead>
           </table>
-          <input class="hideShortSessions" title="Check this input to hide sessions under 50 minutes" type="checkbox" checked>Hide Short Sessions</input></br>
+          <input class="hideShortSessions" title="Check this input to hide sessions under 50 minutes" type="checkbox" checked>Hide Short Sessions</input>
       </div>
-    </div>
-    <div class="filtersContainer">
+      <div class="sectionTitle">Import Data for Billing</div>
+      <div class="importData">
+          <textarea id="importData" title="Save this to a file and import that into the PDF." placeholder="Save this to a file and import that into the PDF."></textarea>
+          <button class="saveImportData" title="Save import data to your file system" type="button">Save</button>
+      </div>
+  </div>
+  <div class="filtersContainer">
       <div class="sectionTitle">Filters</div>
       <div class="filters">
           <div class="filtersColumn1">
@@ -144,6 +149,6 @@
       </div>
 
       <button class="filterApplier" title="Apply the set filters" type="button">Apply</button>
-    </div>
+  </div>
 </body>
 </html>

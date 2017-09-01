@@ -32,14 +32,14 @@
 
     var currentClientIndex = 0;
 
-    var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     // Filters
     var filters = {
         irritating: false,
         extensionRequired: false,
         hidePrivateClients: false
-    }
+    };
 
     /**********************************************************************/
     // HANDLE USER CLICKS
@@ -114,6 +114,26 @@
 
             currentClientIndex = 0;
             populateFields(1);
+        });
+
+    $(document).off('click.saveImportData')
+        .on('click.saveImportData', '.saveImportData', function(event) {
+            var fileName = 'importBilling.txt';
+            var importThis = $('#importData').val().replace(/\\n/g, '\r\n');
+            if (importThis.length > 0) {
+                var blob = new Blob([importThis], {type: 'text/plain'});
+                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                    window.navigator.msSaveOrOpenBlob(blob, fileName);
+                } else {
+                    var e = document.createEvent('MouseEvents'),
+                        a = document.createElement('a');
+                    a.download = fileName;
+                    a.href = window.URL.createObjectURL(blob);
+                    a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':');
+                    e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                    a.dispatchEvent(e);
+                }
+            }
         });
 
     /**********************************************************************/
@@ -271,6 +291,10 @@
         if ((filters.extensionRequired || filters.irritating || filters.hidePrivateClients) && !force) {
             showNext(currentClientIndex, increment);
         } else if (clientData.length > 0) {
+            if (clientData[currentClientIndex].sessionCount) {
+                initializeImportField(clientData[currentClientIndex].sessionCount);
+            }
+
             var content = $('.content');
             content.fadeTo(100, 0.5, function() {
                 var nextClientData = clientData[currentClientIndex];
@@ -296,8 +320,8 @@
                 clearTable(table);
                 if (nextClientData.sessions) {
                     $.each(nextClientData.sessions, function (index) {
-                        addRow(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
-                            nextClientData['dateExtReqApproved'], nextClientData['number']);
+                        addSession(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
+                            nextClientData['dateExtReqApproved'], nextClientData['number'], nextClientData['initials']);
                     });
                     if ($('.hideShortSessions:checked').length === 0) {
                         $('.shortSession').show();
@@ -306,7 +330,12 @@
                 $('#clientInformation .datesSeenCount').text(nextClientData['datesSeenCount']);
 
                 content.fadeTo(100, 1);
-            })
+
+
+                if (clientData[currentClientIndex].sessionCount) {
+                    finalizeImportField();
+                }
+            });
         }
     }
 
@@ -316,15 +345,29 @@
         }
     }
 
-    function addRow(table, sessionData, employer, extReq, extApproved, number) {
+    function addSession(table, sessionData, employer, extReq, extApproved, number, initials) {
         var row = $('<tr class="' + (sessionData['duration'] < 49 ? 'shortSession' : '') + '">');
         table.append(row);
-        addCell(row, getDateString(new Date(sessionData['startDate'])));
+        var sessionDate = new Date(sessionData['startDate']);
+        addCell(row, getDateString(sessionDate));
+        addImportField(getDateString(sessionDate, true));
+
         addCell(row, employer);
+        addImportField(employer); // Org
+
         addCell(row, number);
+        addImportField(number);  // ClientId
+
         addCell(row, (sessionData['attendance'] === 'No Show' ? '<b>√</b>' : ''));
+        addImportField((sessionData['attendance'] === 'No Show' ? 'Yes' : 'No'));
+
         addCell(row, sessionData['duration']);
+        addImportField(sessionData['duration']);
+
         addCell(row, extApproved);
+        addImportField(getDateString(new Date(extApproved), true));
+        addImportField(initials);
+
         addCell(row, '');
         addCell(row, sessionData['fee'], false);
         addCell(row, sessionData['charged'], false);
@@ -383,7 +426,10 @@
         return irritating;
     }
 
-    function getDateString(date) {
+    function getDateString(date, forImport) {
+        if (forImport) {
+            return date.getDate() + '-' + MONTHS[date.getMonth()] + '-' + date.getFullYear();
+        }
         return MONTHS[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
     }
 
@@ -396,6 +442,33 @@
         }
 
         return null;
+    }
+
+    function initializeImportField(numOfSessions) {
+        var lastMonth = (new Date()).getMonth(); // Assume we're doing last month's billing
+        if (lastMonth == 0) {
+            lastMonth = 12;
+        }
+        var imports = $('#importData');
+        var header = 'Name	Counsellor Number	Company	Month	SOA Number	Mailing address 1	Mailing address 2	City	Province	Postal code	Hourly rate';
+        var line = 'Sue Top	1298982		' + MONTHS[lastMonth] + '	SO-2015-EAP-NCR-4144	10 Rideau River Lane		Ottawa	ON	K1S 0X1	70';
+        var i;
+        for (i = 1; i <= numOfSessions; i++) {
+            header += '	Date ' + i + '	Org ' + i + '	Client ' + i + '	No Show ' + i + '	Time ' + i + '	Ext. Date ' + i + '	Ext. Init ' + i;
+        }
+        header += '	Tax1	Tax2	GST/TVH Registration #';
+
+        imports.val(header + '\r\n' + line);
+    }
+
+    function finalizeImportField() {
+       addImportField('PST	GST	884762642');
+    }
+
+    function addImportField(value) {
+        var imports = $('#importData');
+        var currentValue = imports.val();
+        imports.val(currentValue + '	' + value);
     }
 
 })(window);
