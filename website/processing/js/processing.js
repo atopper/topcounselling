@@ -21,7 +21,7 @@
 
     var clientData = [];
     var clientColumns = ['id','type','startDate','serviceName','clientCode','clientId','therapistName','duration',
-        'attendance','fee','charged','taxChared', 'paid', 'taxPaid', 'invoiceId','paymentMethod','comments'];
+        'attendance','fee','charged','taxCharged', 'paid', 'taxPaid', 'invoiceId','paymentMethod','comments'];
     var clientKey = 5;
     var sessionKey = 0;
     var skipFirstClientRow = true;
@@ -29,6 +29,9 @@
         'dateSentExtReq','dateExtReqApproved','approved','datesSeen','owlId','reason','initials'];
     var masterKey = 11;
     var skipFirstMasterRow = true;
+    var numOfSessionsPerPage = 15;
+    var maxNumberOfPages = 4;
+    var importRowsOnCurrentPage = 0;
 
     var currentClientIndex = 0;
 
@@ -56,6 +59,7 @@
             inputMasterKey();
             clientData.sort(sortByNumber);
             populateFields(1);
+            populateBillingFields();
         });
 
     $(document).off('click.processsingReset')
@@ -117,9 +121,20 @@
         });
 
     $(document).off('click.saveImportData')
-        .on('click.saveImportData', '.saveImportData', function(event) {
-            var fileName = 'importBilling.txt';
-            var importThis = $('#importData').val().replace(/\\n/g, '\r\n');
+        .on('click.saveImportData', '[class^="saveImportData"]', function(event) {
+            var fileName = 'TCBilling_Pg';
+            var sourceData = '#importData';
+            if ($(this).hasClass('saveImportData1')) {
+                fileName += '1.txt';
+                sourceData += '1';
+            } else if ($(this).hasClass('saveImportData1')) {
+                fileName += '2.txt';
+                sourceData += '2';
+            } else {
+                fileName += '3.txt';
+                sourceData += '3';
+            }
+            var importThis = $(sourceData).val().replace(/\\n/g, '\r\n');
             if (importThis.length > 0) {
                 var blob = new Blob([importThis], {type: 'text/plain'});
                 if (window.navigator && window.navigator.msSaveOrOpenBlob) {
@@ -140,15 +155,17 @@
     // Start working
     /**********************************************************************/
     function inputClientData() {
-        var clientText = $('#calendarImport').val();
+        var totalNumberOfSessions = 0;
+        var calendar = $('#calendarImport');
+        var clientText = calendar.val();
         if (clientText.length === 0) {
-            $('#calendarImport').css('border-color', 'red');
+            calendar.css('border-color', 'red');
             return;
         }
         var firstRow = true;
         var data = clientText.split('\n');
         if (data.length < 2) {
-            $('#calendarImport').css('border-color', 'red');
+            calendar.css('border-color', 'red');
             return;
         }
         $.each(data, function() {
@@ -183,7 +200,10 @@
             }
             newClient.sessions[sessionKeyValue] = newSession;
             newClient.sessionCount++;
+            totalNumberOfSessions++;
         });
+
+        return totalNumberOfSessions;
     }
 
     function inputMasterKey() {
@@ -270,6 +290,7 @@
         return result;
     }
 
+/*
     function createFields(masterSel, fieldNames, data) {
         var i;
         var column1 = $(masterSel).find('.column1');
@@ -285,16 +306,13 @@
             $('#' + fieldNames[i]).text = data[fieldNames[i]];
         }
     }
+*/
 
     function populateFields(increment, force) {
         $('#clientInformation .datesSeenCount').text('0');
         if ((filters.extensionRequired || filters.irritating || filters.hidePrivateClients) && !force) {
             showNext(currentClientIndex, increment);
         } else if (clientData.length > 0) {
-            if (clientData[currentClientIndex].sessionCount) {
-                initializeImportField(clientData[currentClientIndex].sessionCount);
-            }
-
             var content = $('.content');
             content.fadeTo(100, 0.5, function() {
                 var nextClientData = clientData[currentClientIndex];
@@ -320,7 +338,7 @@
                 clearTable(table);
                 if (nextClientData.sessions) {
                     $.each(nextClientData.sessions, function (index) {
-                        addSession(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
+                        addRow(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
                             nextClientData['dateExtReqApproved'], nextClientData['number'], nextClientData['initials']);
                     });
                     if ($('.hideShortSessions:checked').length === 0) {
@@ -330,11 +348,6 @@
                 $('#clientInformation .datesSeenCount').text(nextClientData['datesSeenCount']);
 
                 content.fadeTo(100, 1);
-
-
-                if (clientData[currentClientIndex].sessionCount) {
-                    finalizeImportField();
-                }
             });
         }
     }
@@ -345,29 +358,16 @@
         }
     }
 
-    function addSession(table, sessionData, employer, extReq, extApproved, number, initials) {
+    function addRow(table, sessionData, employer, extReq, extApproved, number, initials) {
         var row = $('<tr class="' + (sessionData['duration'] < 49 ? 'shortSession' : '') + '">');
         table.append(row);
         var sessionDate = new Date(sessionData['startDate']);
         addCell(row, getDateString(sessionDate));
-        addImportField(getDateString(sessionDate, true));
-
         addCell(row, employer);
-        addImportField(employer); // Org
-
         addCell(row, number);
-        addImportField(number);  // ClientId
-
         addCell(row, (sessionData['attendance'] === 'No Show' ? '<b>√</b>' : ''));
-        addImportField((sessionData['attendance'] === 'No Show' ? 'Yes' : 'No'));
-
         addCell(row, sessionData['duration']);
-        addImportField(sessionData['duration']);
-
         addCell(row, extApproved);
-        addImportField((!extApproved || extApproved.length === 0 ? '' : getDateString(new Date(extApproved), true)));
-        addImportField(initials);
-
         addCell(row, '');
         addCell(row, sessionData['fee'], false);
         addCell(row, sessionData['charged'], false);
@@ -444,37 +444,107 @@
         return null;
     }
 
-    function initializeImportField(numOfSessions) {
+    function populateBillingFields() {
+        // Clear billing fields
+        for (var page = 1; page <= maxNumberOfPages; page++) {
+            var imports = $('#importData' + page);
+            imports.val('');
+        }
+
+        importRowsOnCurrentPage = 0;
+        initializeImportField(1);
+        addClientData(clientData);
+    }
+
+    // Initialize a billing field for a particular page
+    function initializeImportField(page) {
         var lastMonth = (new Date()).getMonth(); // Assume we're doing last month's billing
         if (lastMonth == 0) {
             lastMonth = 12;
         }
-        var imports = $('#importData');
+
+        var imports = $('#importData' + page);
         var header = 'Name	Counsellor Number	Company	Month	SOA Number	Mailing address 1	Mailing address 2	City	Province	Postal code	Hourly rate';
-        var line = 'Sue Top	1298982		' + MONTHS[lastMonth] + '	SO-2015-EAP-NCR-4144	10 Rideau River Lane		Ottawa	ON	K1S 0X1	70';
+        var line = 'Sue Top	1298982		' + MONTHS[lastMonth-1] + '	SO-2015-EAP-NCR-4144	10 Rideau River Lane		Ottawa	ON	K1S 0X1	70';
         var i;
-        for (i = 1; i <= numOfSessions; i++) {
+        for (i = 1; i <= numOfSessionsPerPage; i++) {
             header += '	Date ' + i + '	Org ' + i + '	Client ' + i + '	No Show ' + i + '	Time ' + i + '	Ext. Date ' + i + '	Ext. Init ' + i;
         }
-        header += '	Tax1	Tax2	GST/TVH Registration #';
+        header += '	Tax1	Pourcentage 1	Tax2	Pourcentage 2	GST/TVH Registration #';
 
         imports.val(header + '\r\n' + line);
     }
 
-    function finalizeImportField() {
-        addImportField('PST	GST	884762642');
+    // Add Client data (client information and session information) to the billing fields
+    function addClientData(clientData) {
+        var currentPageNumber = 1;
+        for (var i = 0; i < clientData.length; i++) {
+            if (importRowsOnCurrentPage === numOfSessionsPerPage) {
+                finalizeImportField(currentPageNumber, 0);
+                currentPageNumber++;
+                importRowsOnCurrentPage = 0;
+                initializeImportField(currentPageNumber);
+            }
+            var client = clientData[i];
+            if (client.sessions && !!client['employer'] && !!client['number']) {
+                $.each(client.sessions, function (index, session) {
+                    var validLength = (($('.hideShortSessions:checked').length === 0) ||
+                                       session['duration'] >= 59);
+                    if (validLength) {
+                        addBillableSession(session, client, currentPageNumber);
+                        importRowsOnCurrentPage++;
+                    } else {
+                        console.log("Session skipped.  Too short: " + session['duration'] + ' for ' + client['name']);
+                    }
+                });
+            }
+        }
 
-        var imports = $('#importData');
+        finalizeImportField(currentPageNumber, numOfSessionsPerPage - importRowsOnCurrentPage);
+    }
+
+    function addBillableSession(nextSession, client, page) {
+        var sessionDate = new Date(nextSession['startDate']);
+        addImportField(getDateString(sessionDate, true), page);
+        addImportField(client['employer'], page); // Org
+        addImportField(client['number'], page);  // ClientId
+        addImportField((nextSession['attendance'] === 'No Show' ? 'Yes' : 'No'), page);
+        addImportField(nextSession['duration'], page);
+        var dateExtReqApp = client['dateExtReqApproved'];
+        if (dateExtReqApp.indexOf(',') > 0) {
+            var parts = dateExtReqApp.split(',');
+            dateExtReqApp = parts[parts.length - 1];
+        }
+        addImportField((!dateExtReqApp || dateExtReqApp.length === 0 ? '' : getDateString(new Date(dateExtReqApp), true)), page);
+        addImportField(client['initials'], page);
+    }
+
+    // Fill in the rest of the rows, and the final few fields.  Mark the whole text field is an error is found.
+    function finalizeImportField(page, rowsToFill) {
+        for (var i = 0; i < rowsToFill; i++) {
+            addImportField('						', page);   // 6 tabs (7 empty fields)
+        }
+
+        addImportField('HST	13			884762642', page);
+
+        var imports = $('#importData' + page);
         var currentValue = imports.val();
         if (currentValue.indexOf('NaN') > 0 || currentValue.indexOf('undefined') > 0) {
-            imports.css({'border-color':'red', 'background-color': '#fff0f0'});
+            imports.css({'border-color': 'red', 'background-color': '#fff0f0'});
         } else {
-            imports.css({'border-color':'black', 'background-color': '#ffffff'});
+            imports.css({'border-color': 'black', 'background-color': '#ffffff'});
         }
     }
 
-    function addImportField(value) {
-        var imports = $('#importData');
+    function addImportField(value, page) {
+        if (page < 1 || page > maxNumberOfPages) {
+            console.log('Bad page number in addImportField: ' + page + '. Value was ' + value);
+            return;
+        }
+        if (typeof value === 'undefined') {
+            console.log('undefined value in addImportField: ' + page);
+        }
+        var imports = $('#importData' + page);
         var currentValue = imports.val();
         imports.val(currentValue + '	' + value);
     }
