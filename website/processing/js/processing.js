@@ -256,11 +256,11 @@
     }
 
     function sortByNumber(a, b){
-        var aNum = a['number'] || 999999999999;
-        var bNum = b['number'] || 999999999999;
+        var aNum = parseInt(a['number']) || 999999999999;    // number is Organization number
+        var bNum = parseInt(b['number']) || 999999999999;
         if (aNum === 999999999999 && bNum === 999999999999) {
-            aNum = a['clientId'];
-            bNum = b['clientId'];
+            aNum = parseInt(a['clientId']);
+            bNum = parseInt(b['clientId']);
         }
 
         return ((aNum < bNum) ? -1 : ((aNum > bNum) ? 1 : 0));
@@ -325,7 +325,7 @@
                     var val = nextClientData[masterColumns[i]];
                     var date = new Date(val);
                     if (!!date && date.getFullYear() > 2013 && (val.indexOf('-') > 0 || val.indexOf('/') > 0)) {
-                        val = getDateString(date) + ' (' + val + ')';
+                        val = getDateString(val) + ' (' + val + ')';
                     }
                     fld.val(val);
                     if (!nextClientData[masterColumns[i]] || nextClientData[masterColumns[i]].length === 0) {
@@ -361,11 +361,10 @@
     function addRow(table, sessionData, employer, extReq, extApproved, number, initials) {
         var row = $('<tr class="' + (sessionData['duration'] < 49 ? 'shortSession' : '') + '">');
         table.append(row);
-        var sessionDate = new Date(sessionData['startDate']);
-        addCell(row, getDateString(sessionDate));
+        addCell(row, getDateString(sessionData['startDate']));
         addCell(row, employer);
         addCell(row, number);
-        addCell(row, (sessionData['attendance'] === 'No Show' ? '<b>√</b>' : ''));
+        addCell(row, (isNoShow(sessionData['attendance']) ? '<b>√</b>' : ''), true);
         addCell(row, sessionData['duration']);
         addCell(row, extApproved);
         addCell(row, '');
@@ -378,7 +377,7 @@
         if (typeof value === 'undefined') {
             row.append($('<td class="invalidData"></td>'));
         } else if (center) {
-            row.append($('<td style="text-align:center">' + unit + value + '</td>'));
+            row.append($('<td style="text-align:center">' + value + '</td>'));
         } else {
             row.append($('<td>' + value + '</td>'));
         }
@@ -416,7 +415,7 @@
         var irritating = false;
         if (theClient.sessions) {
             $.each(theClient.sessions, function (index) {
-                if (this['paid'] === '0.00' || this['attendance'] === 'No Show') {
+                if (this['paid'] === '0.00' || isNoShow(this['attendance'])) {
                     irritating = true;
                     return;
                 }
@@ -426,7 +425,13 @@
         return irritating;
     }
 
-    function getDateString(date, forImport) {
+    function getDateString(dateStr, forImport) {
+        var dateParts = dateStr.split('-');
+        var month = parseInt(dateParts[1]) - 1;
+        var date = new Date(dateParts[0], month < 0 ? 11 : month, parseInt(dateParts[2]), 0, 0, 0 , 0);
+        if (isNaN(date.getDate())) {
+            date = new Date(dateStr);
+        }
         if (forImport) {
             return date.getDate() + '-' + MONTHS[date.getMonth()] + '-' + date.getFullYear();
         }
@@ -479,6 +484,7 @@
     function addClientData(clientData) {
         var currentPageNumber = 1;
         for (var i = 0; i < clientData.length; i++) {
+            // If we have enough on this page, move to the next export file.
             if (importRowsOnCurrentPage === numOfSessionsPerPage) {
                 finalizeImportField(currentPageNumber, 0);
                 currentPageNumber++;
@@ -488,13 +494,20 @@
             var client = clientData[i];
             if (client.sessions && !!client['employer'] && !!client['number']) {
                 $.each(client.sessions, function (index, session) {
-                    var validLength = (($('.hideShortSessions:checked').length === 0) ||
-                                       session['duration'] >= 59);
-                    if (validLength) {
-                        addBillableSession(session, client, currentPageNumber);
-                        importRowsOnCurrentPage++;
+                    var attendance = session['attendance'];
+                    if (!attendance || attendance.length === 0) {
+                        console.log("ERROR: Empty 'attendance' field for client id: " + session.clientId);
+                    } else if (attendance !== 'Non Billable') {
+                        var validLength = (($('.hideShortSessions:checked').length === 0) ||
+                        session['duration'] >= 59);
+                        if (validLength) {
+                            addBillableSession(session, client, currentPageNumber);
+                            importRowsOnCurrentPage++;
+                        } else {
+                            console.log("Session skipped.  Too short: " + session['duration'] + ' for ' + client['name']);
+                        }
                     } else {
-                        console.log("Session skipped.  Too short: " + session['duration'] + ' for ' + client['name']);
+                        console.log('Session skipped.  Not billable for ' + client['name']);
                     }
                 });
             }
@@ -504,18 +517,22 @@
     }
 
     function addBillableSession(nextSession, client, page) {
-        var sessionDate = new Date(nextSession['startDate']);
-        addImportField(getDateString(sessionDate, true), page);
-        addImportField(client['employer'], page); // Org
+        addImportField(getDateString(nextSession['startDate'], true), page);
+
+        var employer = parseInt(client['employer']);
+        if (employer <= 99) {
+            employer = '0' + employer;
+        }
+        addImportField(employer, page); // Org
         addImportField(client['number'], page);  // ClientId
-        addImportField((nextSession['attendance'] === 'No Show' ? 'Yes' : 'No'), page);
+        addImportField((isNoShow(nextSession['attendance']) ? 'Yes' : 'No'), page);
         addImportField(nextSession['duration'], page);
         var dateExtReqApp = client['dateExtReqApproved'];
         if (dateExtReqApp.indexOf(',') > 0) {
             var parts = dateExtReqApp.split(',');
             dateExtReqApp = parts[parts.length - 1];
         }
-        addImportField((!dateExtReqApp || dateExtReqApp.length === 0 ? '' : getDateString(new Date(dateExtReqApp), true)), page);
+        addImportField((!dateExtReqApp || dateExtReqApp.length === 0 ? '' : getDateString(dateExtReqApp, true)), page);
         addImportField(client['initials'], page);
     }
 
@@ -547,6 +564,10 @@
         var imports = $('#importData' + page);
         var currentValue = imports.val();
         imports.val(currentValue + '	' + value);
+    }
+
+    function isNoShow(value) {
+        return (value === 'No Show' || value === 'Late Cancel');
     }
 
 })(window);
