@@ -48,7 +48,7 @@
     // HANDLE USER CLICKS
     /**********************************************************************/
     $(document).off('click.processsing')
-        .on('click.processsing', '.processingInputsButton', function(event) {
+        .on('click.processsing', '.processingInputsButton', function(/*event*/) {
             $('#masterKey').css('border-color', '');
             $('#calendarImport').css('border-color', '');
             clientData = [];
@@ -63,7 +63,7 @@
         });
 
     $(document).off('click.processsingReset')
-        .on('click.processsingReset', '.processingInputsReset', function(event) {
+        .on('click.processsingReset', '.processingInputsReset', function(/*event*/) {
             $('.content').fadeOut(200, function() {
                 $('.processingInputs textarea').fadeIn(300);
             });
@@ -71,7 +71,7 @@
         });
 
     $(document).off('click.next')
-        .on('click.next', '.nextClient', function(event) {
+        .on('click.next', '.nextClient', function(/*event*/) {
             if (currentClientIndex + 1 < clientData.length) {
                 currentClientIndex++;
                 populateFields(1);
@@ -79,7 +79,7 @@
         });
 
     $(document).off('click.previous')
-        .on('click.previous', '.previousClient', function(event) {
+        .on('click.previous', '.previousClient', function(/*event*/) {
             if (currentClientIndex > 0) {
                 currentClientIndex--;
                 populateFields(-1);
@@ -87,13 +87,13 @@
         });
 
     $(document).off('click.first')
-        .on('click.first', '.firstClient', function(event) {
+        .on('click.first', '.firstClient', function(/*event*/) {
             currentClientIndex = 0;
             populateFields(1);
         });
 
     $(document).off('click.filterActivator')
-        .on('click.filterActivator', '.filterActivator', function(event) {
+        .on('click.filterActivator', '.filterActivator', function(/*event*/) {
             var filtersContainer = $('.filtersContainer');
             if (filtersContainer.position().top < 0) {
                 filtersContainer.animate({top: '3rem'}, 500);
@@ -101,7 +101,7 @@
         });
 
     $(document).off('click.hideShortSessions')
-        .on('click.hideShortSessions', '.hideShortSessions', function(event) {
+        .on('click.hideShortSessions', '.hideShortSessions', function(/*event*/) {
             if ($('.hideShortSessions:checked').length > 0) {
                 $('.shortSession').hide();
             } else {
@@ -110,7 +110,7 @@
         });
 
     $(document).off('click.filterApplier')
-        .on('click.filterApplier', '.filterApplier', function(event) {
+        .on('click.filterApplier', '.filterApplier', function(/*event*/) {
             filters.irritating = $('.filterIrritating:checked').length > 0;
             filters.extensionRequired = $('.filterExtension:checked').length > 0;
             filters.hidePrivateClients = $('.filterHidePrivate:checked').length > 0;
@@ -121,20 +121,25 @@
         });
 
     $(document).off('click.saveImportData')
-        .on('click.saveImportData', '[class^="saveImportData"]', function(event) {
+        .on('click.saveImportData', '[class^="saveImportData"]', function(/*event*/) {
             var fileName = 'TCBilling_Pg';
             var sourceData = '#importData';
             if ($(this).hasClass('saveImportData1')) {
                 fileName += '1.txt';
                 sourceData += '1';
-            } else if ($(this).hasClass('saveImportData1')) {
+            } else if ($(this).hasClass('saveImportData2')) {
                 fileName += '2.txt';
                 sourceData += '2';
-            } else {
+            } else if ($(this).hasClass('saveImportData3')) {
                 fileName += '3.txt';
                 sourceData += '3';
+            } else if ($(this).hasClass('saveImportData4')) {
+                fileName += '4.txt';
+                sourceData += '4';
+            } else {
+                console.log('What saveImportData field are you working with? Classes: ' + $(this).attr('class'));
             }
-            var importThis = $(sourceData).val().replace(/\\n/g, '\r\n');
+            var importThis = ($(sourceData).val() ? $(sourceData).val().replace(/\\n/g, '\r\n') : '');
             if (importThis.length > 0) {
                 var blob = new Blob([importThis], {type: 'text/plain'});
                 if (window.navigator && window.navigator.msSaveOrOpenBlob) {
@@ -148,6 +153,8 @@
                     e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
                     a.dispatchEvent(e);
                 }
+            } else {
+                console.log('No data found to save in ' + sourceData + '???');
             }
         });
 
@@ -207,15 +214,16 @@
     }
 
     function inputMasterKey() {
-        var masterText = $('#masterKey').val();
+        var masterKeyFld = $('#masterKey');
+        var masterText = masterKeyFld.val();
         if (masterText.length === 0) {
-            $('#masterKey').css('border-color', 'red');
+            masterKeyFld.css('border-color', 'red');
             return;
         }
         var firstRow = true;
         var data = masterText.split('\n');
         if (data.length < 2) {
-            $('#masterKey').css('border-color', 'red');
+            masterKeyFld.css('border-color', 'red');
             return;
         }
         $.each(data, function() {
@@ -232,7 +240,7 @@
             if (values.length !== masterColumns.length) {
                 console.log('Master ' + values[0] + ' does not seem to have enough columns.  Expected ' + masterColumns.length + ' but got ' + values.length + '. Skipping it.');
                 console.log(JSON.stringify(this));
-                $('#masterKey').css('border-color', 'red');
+                masterKeyFld.css('border-color', 'red');
                 return;
             }
             var newClient = [];
@@ -247,7 +255,7 @@
             var key = values[masterKey];
             var exisingClient = getClientById(key);
             if (exisingClient !== null) {
-                newClient = $.extend(exisingClient, exisingClient, newClient);
+                $.extend(exisingClient, exisingClient, newClient);
             } else {
                 newClient['clientId'] = newClient['owlId'];
                 clientData.push(newClient);
@@ -337,7 +345,7 @@
                 var table = $('table');
                 clearTable(table);
                 if (nextClientData.sessions) {
-                    $.each(nextClientData.sessions, function (index) {
+                    $.each(nextClientData.sessions, function (/*index*/) {
                         addRow(table, this, nextClientData['employer'], nextClientData['dateSentExtReq'],
                             nextClientData['dateExtReqApproved'], nextClientData['number'], nextClientData['initials']);
                     });
@@ -358,7 +366,7 @@
         }
     }
 
-    function addRow(table, sessionData, employer, extReq, extApproved, number, initials) {
+    function addRow(table, sessionData, employer, extReq, extApproved, number/*, initials*/) {
         var row = $('<tr class="' + (sessionData['duration'] < 49 ? 'shortSession' : '') + '">');
         table.append(row);
         addCell(row, getDateString(sessionData['startDate']));
@@ -414,7 +422,7 @@
     function isIrritating(theClient) {
         var irritating = false;
         if (theClient.sessions) {
-            $.each(theClient.sessions, function (index) {
+            $.each(theClient.sessions, function (/*index*/) {
                 if (this['paid'] === '0.00' || isNoShow(this['attendance'])) {
                     irritating = true;
                     return;
