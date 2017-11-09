@@ -25,8 +25,8 @@
     var clientKey = 5;
     var sessionKey = 0;
     var skipFirstClientRow = true;
-    var masterColumns = ['dateOfReferral','number','name','employer','phone','calls','firstAptDate',
-        'dateSentExtReq','dateExtReqApproved','approved','datesSeen','owlId','reason','initials'];
+    var masterColumns = ['dateOfReferral','number','name','employer','phone', 'dateExtReqApproved','approved','owlId',
+        'reason','initials'];
     var masterKey = 11;
     var skipFirstMasterRow = true;
     var numOfSessionsPerPage = 15;
