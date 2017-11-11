@@ -20,8 +20,9 @@
 (function(window, undefined) {
 
     var clientData = [];
-    var clientColumns = ['id','type','startDate','serviceName','clientCode','clientId','therapistName','duration',
-        'attendance','fee','charged','taxCharged', 'paid', 'taxPaid', 'invoiceId','paymentMethod','comments'];
+    var clientColumns = ['id','type','startDate','serviceName','clientCode','clientId','therapistName',
+        'supervisorName','duration','attendance', 'fee','charged','taxCharged', 'paid', 'taxPaid', 'invoiceId',
+        'paymentMethod','comments'];
     var clientKey = 5;
     var sessionKey = 0;
     var skipFirstClientRow = true;
@@ -188,7 +189,8 @@
             }
             if (values.length !== clientColumns.length) {
                 console.log('Client ' + values[0] + ' does not seem to have enough columns.  Expected ' + clientColumns.length + ' but got ' + values.length + '. Skipping it.');
-                console.log(JSON.stringify(this));
+                console.log('==Received: ' + JSON.stringify(this));
+                console.log('==Expected: ' + clientColumns.join());
                 $('#calendarImport').css('border-color', 'red');
                 return;
             }
