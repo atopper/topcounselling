@@ -26,9 +26,9 @@
     var clientKey = 5;
     var sessionKey = 0;
     var skipFirstClientRow = true;
-    var masterColumns = ['dateOfReferral','number','name','employer','phone', 'dateExtReqApproved','approved','owlId',
+    var masterColumns = ['dateOfReferral','number','name','employer','phone', 'dateExtReqApproved','numberOk','owlId',
         'reason','initials'];
-    var masterKey = 11;
+    var masterKey = 7;
     var skipFirstMasterRow = true;
     var numOfSessionsPerPage = 15;
     var maxNumberOfPages = 4;
@@ -188,7 +188,7 @@
                 return;
             }
             if (values.length !== clientColumns.length) {
-                console.log('Client ' + values[0] + ' does not seem to have enough columns.  Expected ' + clientColumns.length + ' but got ' + values.length + '. Skipping it.');
+                console.log('Client ' + values[0] + ' does not seem to have the correct number of columns.  Expected ' + clientColumns.length + ' but got ' + values.length + '. Skipping it.');
                 console.log('==Received: ' + JSON.stringify(this));
                 console.log('==Expected: ' + clientColumns.join());
                 $('#calendarImport').css('border-color', 'red');
@@ -240,8 +240,10 @@
                 return;
             }
             if (values.length !== masterColumns.length) {
-                console.log('Master ' + values[0] + ' does not seem to have enough columns.  Expected ' + masterColumns.length + ' but got ' + values.length + '. Skipping it.');
-                console.log(JSON.stringify(this));
+                console.log('Master ' + values[0] + ' does not seem to the correct number of columns.  Expected ' + masterColumns.length + ' but got ' + values.length + '. Skipping it.');
+                console.log('==Received: ' + JSON.stringify(this));
+                console.log('==Expected: ' + masterColumns.join());
+
                 masterKeyFld.css('border-color', 'red');
                 return;
             }
@@ -277,6 +279,9 @@
     }
 
     function commaDelimitedQuotes(theLine) {
+        // Strip trailing commas
+        // theLine = theLine.replace(new RegExp(',$'), '');
+
         var result = [];
         result[0] = '';
         var fldCount = 0;
@@ -414,7 +419,7 @@
     function isRequireExtension(theClient) {
         return (theClient.sessionCount >= 3 &&
         (!theClient['dateExtReqApproved'] || theClient['dateExtReqApproved'].length === 0) &&
-        (!theClient['approved'] || theClient['approved'].length === 0));
+        (!theClient['numberOk'] || theClient['numberOk'].length === 0));
     }
 
     function isPrivateClient(theClient) {
@@ -427,7 +432,7 @@
             $.each(theClient.sessions, function (/*index*/) {
                 if (this['paid'] === '0.00' || isNoShow(this['attendance'])) {
                     irritating = true;
-                    return;
+                    return false;
                 }
             });
         }
@@ -442,6 +447,10 @@
         if (isNaN(date.getDate())) {
             date = new Date(dateStr);
         }
+        if (isNaN(date.getDate()) || isNaN(date.getMonth()) || isNaN(date.getFullYear())) {
+            return "";
+        }
+
         if (forImport) {
             return date.getDate() + '-' + MONTHS[date.getMonth()] + '-' + date.getFullYear();
         }
@@ -513,6 +522,13 @@
                         if (validLength) {
                             addBillableSession(session, client, currentPageNumber);
                             importRowsOnCurrentPage++;
+                            $('.importDataCount' + currentPageNumber).html(' ' + importRowsOnCurrentPage + ' sessions');
+                            if (importRowsOnCurrentPage === numOfSessionsPerPage) {
+                                finalizeImportField(currentPageNumber, 0);
+                                currentPageNumber++;
+                                importRowsOnCurrentPage = 0;
+                                initializeImportField(currentPageNumber);
+                            }
                         } else {
                             console.log("Session skipped.  Too short: " + session['duration'] + ' for ' + client['name']);
                         }

@@ -167,12 +167,16 @@ body #sessionInformation {
     resize: vertical;
 }
 
-.importData #importData {
+/*.importData #importData {
     width: 33%;
     height: 3rem;
     resize: vertical;
     text-align: inherit;
-}
-.importData .saveImportData {
+}*/
+.importData .importDataCount1,
+.importData .importDataCount2,
+.importData .importDataCount3,
+.importData .importDataCount4 {
     float: right;
+    font-style: italic;
 }
