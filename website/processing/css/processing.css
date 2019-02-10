@@ -109,6 +109,23 @@ body #sessionInformation {
     text-align: left;
 }
 
+body .messageLog {
+    padding: 0.3rem;
+    background-color: #DFE1E0;
+    border: 1px black solid;
+    margin-bottom: 1rem;
+}
+
+body h4 {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+body .messageLog p {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
 .filtersContainer {
     width: 50%;
     min-height: 10rem;
@@ -163,7 +180,8 @@ body #sessionInformation {
 
 .importData textarea {
     width: 100%;
-    height: 3rem;
+    height: 4rem;
+    min-height: 4rem;
     resize: vertical;
 }
 

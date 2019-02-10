@@ -21,14 +21,17 @@
 
     var clientData = [];
     var clientColumns = ['id','type','startDate','serviceName','clientCode','clientId','therapistName',
-        'supervisorName','duration','attendance', 'fee','charged','taxCharged', 'paid', 'taxPaid', 'invoiceId',
+        'duration','attendance', 'fee','charged','taxCharged', 'paid', 'taxPaid', 'invoiceId',
         'paymentMethod','comments'];
-    var clientKey = 5;
-    var sessionKey = 0;
+    var clientKey = 5;   // 'clientId'
+    var sessionKey = 0;  // 'id'
     var skipFirstClientRow = true;
-    var masterColumns = ['dateOfReferral','number','name','employer','phone', 'dateExtReqApproved','numberOk','owlId',
-        'reason','initials'];
-    var masterKey = 7;
+//    var masterColumns = ['dateOfReferral','number','name','employer','phone', 'dateExtReqApproved','numberOk','owlId',
+//        'reason','initials'];
+    var masterColumns = ['dateOfReferral','number','name','employer','phone','calls','firstAptDate',
+                         'dateSentExtReq','dateExtReqApproved','numberOk','datesSeen','owlId',
+                         'reason','initials'];
+    var masterKey = 11;     // owlId (matches the session client key)
     var skipFirstMasterRow = true;
     var numOfSessionsPerPage = 15;
     var maxNumberOfPages = 4;
@@ -56,8 +59,8 @@
             $('.processingInputs textarea').hide();
 
             currentClientIndex = 0;
-            inputClientData();
-            inputMasterKey();
+            inputClientData();          // Setup the clientData
+            inputMasterKey();           // Merge with clientData
             clientData.sort(sortByNumber);
             populateFields(1);
             populateBillingFields();
@@ -138,7 +141,7 @@
                 fileName += '4.txt';
                 sourceData += '4';
             } else {
-                console.log('What saveImportData field are you working with? Classes: ' + $(this).attr('class'));
+                addMessageLog('What saveImportData field are you working with? Classes: ' + $(this).attr('class'));
             }
             var importThis = ($(sourceData).val() ? $(sourceData).val().replace(/\\n/g, '\r\n') : '');
             if (importThis.length > 0) {
@@ -155,7 +158,7 @@
                     a.dispatchEvent(e);
                 }
             } else {
-                console.log('No data found to save in ' + sourceData + '???');
+                addMessageLog('No data found to save in ' + sourceData + '???');
             }
         });
 
@@ -188,9 +191,9 @@
                 return;
             }
             if (values.length !== clientColumns.length) {
-                console.log('Client ' + values[0] + ' does not seem to have the correct number of columns.  Expected ' + clientColumns.length + ' but got ' + values.length + '. Skipping it.');
-                console.log('==Received: ' + JSON.stringify(this));
-                console.log('==Expected: ' + clientColumns.join());
+                addMessageLog('Client ' + values[0] + ' does not seem to have the correct number of columns.  Expected ' + clientColumns.length + ' but got ' + values.length + '. Skipping it.');
+                addMessageLog('==Received: ' + JSON.stringify(this));
+                addMessageLog('==Expected: ' + clientColumns.join());
                 $('#calendarImport').css('border-color', 'red');
                 return;
             }
@@ -201,7 +204,7 @@
             }
             var key = values[clientKey];
             var sessionKeyValue = values[sessionKey];
-            var newClient = getClientById(key);
+            var newClient = getClientById(key, false);
             if (newClient === null) {
                 newClient = {sessions: {}, sessionCount: 0};
                 clientData.push(newClient);
@@ -240,9 +243,9 @@
                 return;
             }
             if (values.length !== masterColumns.length) {
-                console.log('Master ' + values[0] + ' does not seem to the correct number of columns.  Expected ' + masterColumns.length + ' but got ' + values.length + '. Skipping it.');
-                console.log('==Received: ' + JSON.stringify(this));
-                console.log('==Expected: ' + masterColumns.join());
+                addMessageLog('Master ' + values[0] + ' does not seem to the correct number of columns.  Expected ' + masterColumns.length + ' but got ' + values.length + '. Skipping it.');
+                addMessageLog('==Received: ' + JSON.stringify(this));
+                addMessageLog('==Expected: ' + masterColumns.join());
 
                 masterKeyFld.css('border-color', 'red');
                 return;
@@ -257,9 +260,9 @@
                 }
             }
             var key = values[masterKey];
-            var exisingClient = getClientById(key);
-            if (exisingClient !== null) {
-                $.extend(exisingClient, exisingClient, newClient);
+            var existingClient = getClientById(key, true);
+            if (existingClient !== null) {
+                $.extend(existingClient, existingClient, newClient);
             } else {
                 newClient['clientId'] = newClient['owlId'];
                 clientData.push(newClient);
@@ -457,12 +460,16 @@
         return MONTHS[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
     }
 
-    function getClientById(id) {
+    function getClientById(id, logIfNotFound) {
         var i;
         for (i = 0; i < clientData.length; i++) {
             if (clientData[i]['clientId'] === id) {
                 return clientData[i];
             }
+        }
+
+        if (!!logIfNotFound) {
+            addMessageLog('Processing data but expect strangeness.  Could not find master owl id in session data. (Private?)  Number=' + id);
         }
 
         return null;
@@ -515,7 +522,7 @@
                 $.each(client.sessions, function (index, session) {
                     var attendance = session['attendance'];
                     if (!attendance || attendance.length === 0) {
-                        console.log("ERROR: Empty 'attendance' field for client id: " + session.clientId);
+                        addMessageLog("ERROR: Empty 'attendance' field for client id: " + session.clientId);
                     } else if (attendance !== 'Non Billable') {
                         var validLength = (($('.hideShortSessions:checked').length === 0) ||
                         session['duration'] >= 59);
@@ -530,12 +537,14 @@
                                 initializeImportField(currentPageNumber);
                             }
                         } else {
-                            console.log("Session skipped.  Too short: " + session['duration'] + ' for ' + client['name']);
+                            addMessageLog("Session skipped.  Too short: " + session['duration'] + ' for ' + client['name']);
                         }
                     } else {
-                        console.log('Session skipped.  Not billable for ' + client['name']);
+                        addMessageLog('Session skipped.  Not billable for ' + client['name']);
                     }
                 });
+            } else {
+                addMessageLog('Session skipped (Was it private? In Owl, but no sessions in the calendar?). Client Id=' + client.clientId);
             }
         }
 
@@ -581,11 +590,11 @@
 
     function addImportField(value, page) {
         if (page < 1 || page > maxNumberOfPages) {
-            console.log('Bad page number in addImportField: ' + page + '. Value was ' + value);
+            addMessageLog('Bad page number in addImportField: ' + page + '. Value was ' + value);
             return;
         }
         if (typeof value === 'undefined') {
-            console.log('undefined value in addImportField: ' + page);
+            addMessageLog('undefined value in addImportField: ' + page);
         }
         var imports = $('#importData' + page);
         var currentValue = imports.val();
@@ -594,6 +603,14 @@
 
     function isNoShow(value) {
         return (value === 'No Show' || value === 'Late Cancel');
+    }
+
+    function addMessageLog(newEntry) {
+        var messageLog = $('.messageLog');
+        $('<p>' + newEntry + '</p>').appendTo(messageLog);
+        if (!!console && !!console.log) {
+            console.log(newEntry);
+        }
     }
 
 })(window);
