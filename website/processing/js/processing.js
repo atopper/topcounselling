@@ -21,6 +21,7 @@
 
     var clientData = [];
     var clientColumns = ['id','type','startDate','serviceName','clientCode','clientId','therapistName',
+        'supervisorName',
         'duration','attendance', 'fee','charged','taxCharged', 'paid', 'taxPaid', 'invoiceId',
         'paymentMethod','comments'];
     var clientKey = 5;   // 'clientId'
@@ -28,10 +29,9 @@
     var skipFirstClientRow = true;
 //    var masterColumns = ['dateOfReferral','number','name','employer','phone', 'dateExtReqApproved','numberOk','owlId',
 //        'reason','initials'];
-    var masterColumns = ['dateOfReferral','number','name','employer','phone','calls','firstAptDate',
-                         'dateSentExtReq','dateExtReqApproved','numberOk','datesSeen','owlId',
+    var masterColumns = ['dateOfReferral','number','name','employer','phone','dateExtReqApproved','numberOk','owlId',
                          'reason','initials'];
-    var masterKey = 11;     // owlId (matches the session client key)
+    var masterKey = 7;     // owlId (matches the session client key)
     var skipFirstMasterRow = true;
     var numOfSessionsPerPage = 15;
     var maxNumberOfPages = 4;
