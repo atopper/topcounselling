@@ -29,7 +29,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noodp">
   <meta name="keywords" content="TopCounselling,processing">
-  <meta name="description" content="Information massaging for Top Couselling">
+  <meta name="description" content="Information massaging for Top Counselling">
   <meta name="application-name" content="TopCounselling.com">
   <meta name="msapplication-TileColor" content="FF0000">
   <link rel="icon" type="image/ico" href="http://topcounselling.com/img/favicon.ico"/>
@@ -46,10 +46,13 @@
   <div class="processingInputs">
       <textarea id="calendarImport" title="Copy and Paste calendar information here." placeholder="Copy and Paste calendar information here."></textarea>
       <textarea id="masterKey" title="Copy and Paste Master Key information here." placeholder="Copy and Paste Master Key information here."></textarea>
-      <button class="processingInputsButton" title="Read in the data in the two text areas above and set the client list to populate the information below"
-              type="button">Process</button>
-      <button class="processingInputsReset"  title="Clear the data in the two text areas above and start over"
-              type="button">Reset</button>
+      <div>Longest Invalid Session: <input class="longestSessionMax" title="The longest session that is too short." type="number" max="120" min="10" value="49"/></div>
+      <div>
+          <button class="processingInputsButton" title="Read in the data in the two text areas above and set the client list to populate the information below"
+                  type="button">Process</button>
+          <button class="processingInputsReset"  title="Clear the data in the two text areas above and start over"
+                  type="button">Reset</button>
+      </div>
   </div>
   <div class="content">
       <div id="clientToolbar">
@@ -128,7 +131,7 @@
                 </tr>
               </thead>
           </table>
-          <input class="hideShortSessions" title="Check this input to hide sessions under 50 minutes" type="checkbox" checked>Hide Short Sessions</input>
+          <input class="hideShortSessions" title="Check this input to hide sessions under 50 minutes" type="checkbox" checked/>Hide Short Sessions
       </div>
       <div class="sectionTitle">Import Data for Billing</div>
       <div class="importData">
@@ -165,11 +168,11 @@
       <div class="sectionTitle">Filters</div>
       <div class="filters">
           <div class="filtersColumn1">
-            <input class="filterIrritating" title="Only show clients that have missed an appointment or who haven't paid" type="checkbox">Irritating</input></br>
-            <input class="filterHidePrivate" title="Only show clients that has master information" type="checkbox">Hide Private Clients</input></br>
+            <input class="filterIrritating" title="Only show clients that have missed an appointment or who haven't paid" type="checkbox"/>Irritating</br>
+            <input class="filterHidePrivate" title="Only show clients that has master information" type="checkbox"/>Hide Private Clients</br>
           </div>
           <div class="filtersColumn2">
-            <input class="filterExtension" title="Only show clients that probably require an extension." type="checkbox">Requires Extension</input>
+            <input class="filterExtension" title="Only show clients that probably require an extension." type="checkbox"/>Requires Extension
           </div>
       </div>
 

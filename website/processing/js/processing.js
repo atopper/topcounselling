@@ -27,8 +27,6 @@
     var clientKey = 5;   // 'clientId'
     var sessionKey = 0;  // 'id'
     var skipFirstClientRow = true;
-//    var masterColumns = ['dateOfReferral','number','name','employer','phone', 'dateExtReqApproved','numberOk','owlId',
-//        'reason','initials'];
     var masterColumns = ['dateOfReferral','number','name','employer','phone','dateExtReqApproved','numberOk','owlId',
                          'reason','initials'];
     var masterKey = 7;     // owlId (matches the session client key)
@@ -509,6 +507,7 @@
     // Add Client data (client information and session information) to the billing fields
     function addClientData(clientData) {
         var currentPageNumber = 1;
+        var largestInvalid = $('.longestSessionMax').val();
         for (var i = 0; i < clientData.length; i++) {
             // If we have enough on this page, move to the next export file.
             if (importRowsOnCurrentPage === numOfSessionsPerPage) {
@@ -525,7 +524,7 @@
                         addMessageLog("ERROR: Empty 'attendance' field for client id: " + session.clientId);
                     } else if (attendance !== 'Non Billable') {
                         var validLength = (($('.hideShortSessions:checked').length === 0) ||
-                        session['duration'] >= 59);
+                        session['duration'] >= largestInvalid);
                         if (validLength) {
                             addBillableSession(session, client, currentPageNumber);
                             importRowsOnCurrentPage++;
