@@ -20,12 +20,12 @@
 (function(window, undefined) {
 
     var clientData = [];
-    var clientColumns = ['id','type','startDate','serviceName','clientCode','clientId','therapistName',
+    var clientColumns = ['name','id','type','startDate','serviceName','clientCode','clientId','therapistName',
         'supervisorName',
         'duration','attendance', 'fee','charged','taxCharged', 'paid', 'taxPaid', 'invoiceId',
         'paymentMethod','comments'];
-    var clientKey = 5;   // 'clientId'
-    var sessionKey = 0;  // 'id'
+    var clientKey = 6;   // 'clientId'
+    var sessionKey = 1;  // 'id'
     var skipFirstClientRow = true;
     var masterColumns = ['dateOfReferral','number','name','employer','phone','dateExtReqApproved','numberOk','owlId',
                          'reason','initials'];
@@ -488,7 +488,7 @@
     // Initialize a billing field for a particular page
     function initializeImportField(page) {
         var lastMonth = (new Date()).getMonth(); // Assume we're doing last month's billing
-        if (lastMonth == 0) {
+        if (lastMonth === 0) {
             lastMonth = 12;
         }
 
