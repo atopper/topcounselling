@@ -560,7 +560,7 @@
         addImportField(employer, page); // Org
         addImportField(client['number'], page);  // ClientId
         addImportField((isNoShow(nextSession['attendance']) ? 'Yes' : 'No'), page);
-        addImportField(nextSession['duration'], page);
+        addImportField(Math.max(nextSession['duration'], 60), page);
         var dateExtReqApp = client['dateExtReqApproved'];
         if (dateExtReqApp.indexOf(',') > 0) {
             var parts = dateExtReqApp.split(',');
